@@ -1,1 +1,14 @@
-{"planes": []}
+{
+  "planes": [
+    {
+      "id": "mv3xo5o7zut",
+      "ciclo": "c3",
+      "periodo": "Periodo 3",
+      "docente": "Marisol Velásquez",
+      "titulo": "P301",
+      "fecha": "2026-10-11",
+      "archivo": "c3_periodo-3_marisol-velasquez_mv3xo5o7zut.pdf",
+      "tipo": "pdf"
+    }
+  ]
+}
