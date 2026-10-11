@@ -1,11 +1,10 @@
 # Campo Matemático · Colegio Alemania Unificada IED
 
-Sitio web estático (sin servidor) con los planes de mejoramiento por **ciclo → periodo → docente → estudiante**.
-Los estudiantes solo descargan; al hacerlo registran su nombre y curso en una hoja de Google que el administrador exporta a Excel.
+Sitio web estático (sin servidor) con los planes de mejoramiento por **ciclo → periodo → docente → plan**.
+Los estudiantes solo descargan; antes de bajar el plan escriben su nombre y apellido. Cada descarga queda registrada (nombre, apellido, plan, ciclo, periodo, docente y fecha) en una hoja de Google que el administrador exporta a Excel.
 
 ```
 index.html          Sitio público
-administrador.html  Herramienta para preparar planes (la usa solo el administrador)
 planes.json         Lista de planes publicados
 planes/             Archivos de los planes (PDF, Word, etc.)
 config.js           Dirección del registro de descargas
@@ -17,7 +16,7 @@ apps-script/        Código del registro en Google Sheets
 ### 1. Crear la organización en GitHub (si aún no existe)
 1. Entra a github.com con la cuenta institucional > icono **+** > **New organization**.
 2. Elige el plan **Free**, escribe el nombre (ej. `cedalemaniaunificada`) y el correo del colegio.
-3. Invita a los docentes que vayan a ayudar en **People > Invite member**.
+3. Solo el administrador sube planes: no invites a nadie más con permiso de escritura. Activa la verificación en dos pasos (2FA) en tu cuenta.
 
 ### 2. Crear el repositorio dentro de la organización
 1. En la organización: **Repositories > New repository**.
@@ -44,14 +43,14 @@ Si `planes/` está vacía, GitHub no la conserva: por eso incluimos `planes/.git
 3. En 1 o 2 minutos aparece la dirección: `https://NOMBRE-DE-LA-ORGANIZACION.github.io/campo-matematico/`.
 
 ### 5. Publicar planes de mejoramiento
-1. Abre `administrador.html` en el sitio (`.../administrador.html`) o desde tu computador.
+1. Abre en tu computador (doble clic) el archivo `herramienta-administrador.html`. **No está en el repositorio ni en el sitio**: guárdalo solo tú.
 2. (Si ya hay planes) pulsa **Cargar planes.json actual** y elige el `planes.json` del repositorio.
-3. Elige el archivo, ciclo, periodo, docente, **nombre completo del estudiante y curso** (obligatorios; el sitio mostrará solo el primer nombre y las iniciales de los apellidos, ej. "Ana M. P.") y **Agregar plan**.
+3. Elige el **PDF**, el **ciclo**, el **periodo** y el **docente**. No se piden nombres de estudiantes ni curso. El título del plan es el nombre del archivo PDF, así que nómbralo con claridad antes de elegirlo. Pulsa **Agregar plan**.
 4. Descarga `planes.json` y cada **archivo** (la herramienta les pone un nombre ordenado).
 5. En GitHub: carpeta `planes/` > **Add file > Upload files** y sube los archivos. Luego en la raíz abre `planes.json` > lápiz (editar) y reemplaza su contenido, o súbelo de nuevo con el mismo nombre. **Commit changes**.
 6. Para quitar un plan: borra su archivo en `planes/` y su entrada en `planes.json`.
 
-Límite: 25 MB por archivo al subirlo desde el navegador.
+Solo PDF. Límite: 25 MB por archivo al subirlo desde el navegador.
 
 ### 6. Registro de descargas en Excel (Google Sheets)
 1. Crea una hoja de cálculo nueva en Google Drive (ej. "Registro de descargas Campo Matemático").
@@ -65,7 +64,7 @@ Límite: 25 MB por archivo al subirlo desde el navegador.
 6. Prueba: descarga un plan desde el sitio y revisa que aparezca una fila en la hoja.
 7. Para Excel: en la hoja, **Archivo > Descargar > Microsoft Excel (.xlsx)**.
 
-Cada fila guarda: fecha y hora, quién descargó y su curso, de quién es el plan, ciclo, periodo, docente y archivo.
+Cada fila guarda: fecha y hora, nombre y apellido de quien descargó, plan descargado, ciclo, periodo, docente y archivo.
 Si cambias el código del Apps Script, debes hacer **Implementar > Administrar implementaciones > Editar > Nueva versión**.
 
 ### 7. Dominio propio (opcional)
@@ -74,6 +73,6 @@ Si cambias el código del Apps Script, debes hacer **Implementar > Administrar i
 3. Marca **Enforce HTTPS** cuando esté disponible.
 
 ## Avisos importantes
-- **Privacidad:** GitHub Free solo publica Pages desde repositorios públicos, así que cualquiera puede ver `planes.json` y `planes/`. Por eso el sitio y `planes.json` guardan solo el primer nombre y las iniciales de los apellidos, y los nombres de archivo no llevan el nombre del estudiante. Ojo: el contenido del propio PDF/Word sí puede traer el nombre completo; si eso es un problema, quítalo del documento antes de subirlo. Consulta con la rectoría la política de tratamiento de datos.
+- **Privacidad:** GitHub Free solo publica Pages desde repositorios públicos, así que cualquiera puede ver `planes.json` y `planes/`. Los planes no llevan nombres de estudiantes; los nombres de quienes descargan solo quedan en tu hoja de Google, que es privada. Revisa que el contenido del propio PDF/Word no traiga datos personales que no quieras públicos. Consulta con la rectoría la política de tratamiento de datos.
 - **Registro de descargas:** la dirección del Apps Script es pública; no la compartas fuera del sitio. Solo quien administra la hoja puede leer los datos.
-- Los registros los escribe el navegador del estudiante; no son una prueba infalible de identidad.
+- El nombre y el apellido los escribe el estudiante; no se verifican, por lo que no son una prueba infalible de identidad.
