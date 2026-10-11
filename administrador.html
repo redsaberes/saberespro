@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Administrador · Campo Matemático</title>
+<meta name="robots" content="noindex">
+<style>
+:root{--vino:#9E445E;--vino-osc:#6E2A40;--claro:#F6E7EC;--bg:#FBF8F6;--txt:#2b2326;--suave:#6d6165;--borde:#e6dcd8}
+@media (prefers-color-scheme:dark){:root{--bg:#1d171a;--txt:#f1e9ec;--suave:#b5a7ac;--borde:#3a2f33;--claro:#3a2330}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 Nunito,system-ui,sans-serif;padding:20px 16px 60px}
+main{max-width:860px;margin:0 auto}h1{font-size:26px;margin:0 0 4px}h2{font-size:18px;margin:26px 0 8px}
+p.s{color:var(--suave);margin:0 0 14px}.card{border:1px solid var(--borde);border-radius:16px;padding:18px;background:color-mix(in srgb,var(--bg) 92%,#fff)}
+label{display:block;font-weight:700;font-size:14px;margin:12px 0 4px}input,select{width:100%;font:inherit;padding:10px 12px;border-radius:10px;border:1.5px solid var(--borde);background:var(--bg);color:var(--txt)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.f2{grid-template-columns:1fr}}
+button{font:inherit;font-weight:800;border:0;border-radius:10px;padding:10px 16px;background:var(--vino);color:#fff;cursor:pointer}button.s{background:transparent;color:var(--vino);border:1.5px solid var(--vino)}button:disabled{opacity:.5}
+.fila{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--borde);flex-wrap:wrap}.fila small{color:var(--suave);display:block}
+.pasos{background:var(--claro);border-radius:14px;padding:12px 18px}.acc{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+</style></head><body><main>
+<h1>Administrador</h1><p class="s"><b>Privacidad:</b> el nombre completo se escribe aquí solo para generar las iniciales; en <code>planes.json</code> y en el sitio queda únicamente el nombre y las iniciales de los apellidos (ej. "Ana M. P."). Revisa además que el contenido del archivo no sea buscable por nombre completo si no lo deseas público. Prepara los planes de mejoramiento para publicarlos en el sitio. Esta página no sube nada por sí sola: te entrega los archivos listos para cargar a GitHub.</p>
+<div class="pasos"><b>Cómo se usa</b><ol>
+<li>Si ya hay planes publicados, pulsa <b>Cargar planes.json actual</b> (el archivo del repositorio). Si es el primero, sáltalo.</li>
+<li>Elige el archivo del plan, completa los datos y pulsa <b>Agregar plan</b>. Repite con cada plan.</li>
+<li>Pulsa <b>Descargar planes.json</b> y descarga cada archivo con <b>Descargar archivo</b>.</li>
+<li>En GitHub, sube los archivos descargados a la carpeta <code>planes/</code> y reemplaza <code>planes.json</code> en la raíz. En 1 o 2 minutos el sitio se actualiza.</li></ol></div>
+<h2>Nuevo plan</h2>
+<form class="card" id="f">
+<label for="arch">Archivo (PDF, Word, Excel, PowerPoint o imagen)</label><input type="file" id="arch" required accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg">
+<div class="f2"><div><label for="ciclo">Ciclo</label><select id="ciclo"></select></div><div><label for="per">Periodo</label><select id="per"></select></div></div>
+<label for="doc">Docente</label><select id="doc"></select>
+<div class="f2"><div><label for="est">Nombre completo del estudiante</label><input id="est" required maxlength="80" placeholder="Nombres y apellidos" autocomplete="off"><small id="vista" style="color:var(--suave)">En el sitio se mostrará solo: —</small></div><div><label for="cur">Curso</label><input id="cur" required maxlength="20" placeholder="Ej. 601" autocomplete="off"></div></div>
+<div class="acc"><button>Agregar plan</button></div></form>
+<h2>Planes preparados <span id="n"></span></h2>
+<div class="acc" style="margin:0 0 6px"><button class="s" type="button" id="bCargar">Cargar planes.json actual</button><button type="button" id="bJson" disabled>Descargar planes.json</button><input type="file" id="fJson" accept=".json" hidden></div>
+<div class="card" id="lista"><p class="s" style="margin:0">Aún no hay planes.</p></div>
+</main>
+<script>
+const CICLOS=[["c3","Ciclo 3"],["c4","Ciclo 4"],["c5","Ciclo 5"],["ac3","AC 3"],["ac4","AC 4"]];
+const PERIODOS=["Periodo 1","Periodo 2","Periodo 3"];
+const DOCENTES=["Marisol Velásquez","Mónica Ortiz","Liliana Zorilla","Alba Pérez","Sergio Hidalgo"];
+const $=s=>document.querySelector(s); const planes=[]; const archivos={};
+const opt=(sel,arr)=>$(sel).innerHTML=arr.map(x=>Array.isArray(x)?`<option value="${x[0]}">${x[1]}</option>`:`<option>${x}</option>`).join("");
+opt("#ciclo",CICLOS);opt("#per",PERIODOS);opt("#doc",DOCENTES);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const abreviar=n=>{const w=n.trim().split(/\s+/).filter(Boolean);return w.length?[w[0][0].toUpperCase()+w[0].slice(1).toLowerCase(),...w.slice(1).map(x=>x[0].toUpperCase()+".")].join(" "):""};
+const limpio=s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+function pintar(){
+  $("#n").textContent=planes.length?`(${planes.length})`:"";$("#bJson").disabled=!planes.length;
+  $("#lista").innerHTML=planes.length?planes.map((p,i)=>`<div class="fila"><div><b>${esc(p.estudiante)}</b> · curso ${esc(p.curso)}<small>${esc(p.ciclo.toUpperCase())} · ${esc(p.periodo)} · ${esc(p.docente)} · ${esc(p.archivo)}</small></div><div>${archivos[p.id]?`<button class="s" data-b="${i}">Descargar archivo</button> `:`<small>archivo ya publicado</small> `}<button class="s" data-q="${i}">Quitar</button></div></div>`).join(""):'<p class="s" style="margin:0">Aún no hay planes.</p>';
+}
+$("#f").addEventListener("submit",e=>{e.preventDefault();
+  const f=$("#arch").files[0]; if(!f)return;
+  const ext=(f.name.split(".").pop()||"").toLowerCase(); if(!["pdf","docx","xlsx","pptx","png","jpg","jpeg"].includes(ext)){alert("Formato no permitido.");return}
+  if(f.size>25*1024*1024){alert("El archivo pesa más de 25 MB. GitHub no lo admite desde el navegador.");return}
+  const est=abreviar($("#est").value.replace(/\s+/g," ")),cur=$("#cur").value.trim(),ciclo=$("#ciclo").value,per=$("#per").value,doc=$("#doc").value;
+  const id=Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  const archivo=[ciclo,limpio(per),limpio(doc),limpio(cur),id].join("_")+"."+ext;
+  planes.push({id,ciclo,periodo:per,docente:doc,estudiante:est,curso:cur,titulo:"Plan de mejoramiento · "+est,fecha:new Date().toISOString().slice(0,10),archivo,tipo:ext});
+  archivos[id]=f; $("#arch").value="";$("#est").value="";$("#cur").value="";pintar();$("#est").focus();$("#vista").textContent="En el sitio se mostrará solo: —";});
+$("#est").addEventListener("input",()=>{$("#vista").textContent="En el sitio se mostrará solo: "+(abreviar($("#est").value)||"—")});
+function bajar(blob,nombre){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nombre;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+$("#lista").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.b!==undefined){const p=planes[+b.dataset.b];bajar(archivos[p.id],p.archivo)}
+  if(b.dataset.q!==undefined){const p=planes.splice(+b.dataset.q,1)[0];delete archivos[p.id];pintar()}});
+$("#bJson").onclick=()=>bajar(new Blob([JSON.stringify({planes},null,2)],{type:"application/json"}),"planes.json");
+$("#bCargar").onclick=()=>$("#fJson").click();
+$("#fJson").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());const ids=new Set(planes.map(p=>p.id));(d.planes||[]).forEach(p=>{if(!ids.has(p.id))planes.unshift(p)});pintar()}catch(_){alert("No se pudo leer ese planes.json.")}e.target.value=""};
+pintar();
+</script></body></html>
